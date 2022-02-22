@@ -26,6 +26,9 @@ import com.hazelcast.internal.serialization.impl.HeapData;
 import com.hazelcast.internal.serialization.impl.InternalGenericRecord;
 import com.hazelcast.internal.serialization.impl.compact.Schema;
 import com.hazelcast.internal.serialization.impl.portable.PortableContext;
+import com.hazelcast.jet.config.JobConfig;
+import com.hazelcast.jet.impl.JobRecord;
+import com.hazelcast.jet.impl.JobSummary;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.partition.PartitioningStrategy;
@@ -39,6 +42,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Collections.newSetFromMap;
 
@@ -62,6 +67,12 @@ public class SamplingSerializationService implements InternalSerializationServic
     private static final String TEST_CLASS_SUFFIX = "Test";
     private static final String TEST_PACKAGE_INFIX = ".test";
     private static final String EXAMPLE_PACKAGE_PREFIX = "example.";
+    private static final String JET_PACKAGE_PREFIX = "com.hazelcast.jet";
+
+    private static final Set<String> JET_BACKWARD_COMPATIBLE_CLASSES = Stream
+            .of(JobRecord.class, JobSummary.class, JobConfig.class)
+            .map(Class::getName)
+            .collect(Collectors.toSet());
 
     protected final InternalSerializationService delegate;
 
@@ -259,6 +270,10 @@ public class SamplingSerializationService implements InternalSerializationServic
         String className = klass.getName();
 
         if (SAMPLED_CLASSES.contains(className)) {
+            return false;
+        }
+
+        if (className.startsWith(JET_PACKAGE_PREFIX) && !JET_BACKWARD_COMPATIBLE_CLASSES.contains(className)) {
             return false;
         }
 
