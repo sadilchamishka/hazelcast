@@ -24,6 +24,7 @@ import com.hazelcast.internal.serialization.DataType;
 import com.hazelcast.internal.serialization.InternalSerializationService;
 import com.hazelcast.internal.serialization.impl.HeapData;
 import com.hazelcast.internal.serialization.impl.InternalGenericRecord;
+import com.hazelcast.internal.serialization.impl.compact.CompactGenericRecord;
 import com.hazelcast.internal.serialization.impl.compact.Schema;
 import com.hazelcast.internal.serialization.impl.portable.PortableContext;
 import com.hazelcast.jet.config.JobConfig;
@@ -268,6 +269,10 @@ public class SamplingSerializationService implements InternalSerializationServic
         }
 
         String className = klass.getName();
+
+        if (obj instanceof CompactGenericRecord) {
+            return false;
+        }
 
         if (SAMPLED_CLASSES.contains(className)) {
             return false;
