@@ -53,12 +53,6 @@ public class LoggerTest extends HazelcastTestSupport {
     }
 
     @Test
-    public void getLogger_thenLog4j_thenReturnLog4jLogger() {
-        isolatedLoggingRule.setLoggingType(LOGGING_TYPE_LOG4J);
-        assertInstanceOf(Log4jFactory.Log4jLogger.class, Logger.getLogger(getClass()));
-    }
-
-    @Test
     public void getLogger_thenLog4j2_thenReturnLog4j2Logger() {
         isolatedLoggingRule.setLoggingType(LOGGING_TYPE_LOG4J2);
         assertInstanceOf(Log4j2Factory.Log4j2Logger.class, Logger.getLogger(getClass()));
@@ -142,10 +136,8 @@ public class LoggerTest extends HazelcastTestSupport {
 
         final ILogger loggerViaGetLogger = Logger.getLogger(getClass().getName());
         final LoggerFactory loggerFactory = Logger.newLoggerFactory(LOGGING_TYPE_LOG4J);
-        final ILogger loggerViaFactory = loggerFactory.getLogger(getClass().getName());
 
         assertInstanceOf(Log4j2Factory.Log4j2Logger.class, loggerViaGetLogger);
-        assertInstanceOf(Log4jFactory.Log4jLogger.class, loggerViaFactory);
         assertNotEquals(loggerFactory, isolatedLoggingRule.getLoggerFactory());
     }
 }
